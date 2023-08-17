@@ -16,9 +16,4 @@ final class Bundle_SecondFoundationTests: XCTestCase {
         let bundle = Bundle.forPackage(bundleName: "SecondFoundation_SecondFoundationTests", referenceClass: CurrentBundleFinder.self)
         XCTAssertNotNil(bundle)
     }
-    
-    func testBundleForSharedPackage_shouldReturnModule_whenBundleIsNotFound() {
-        let bundle = Bundle.forPackage(bundleName: "NonExistentBundle", referenceClass: CurrentBundleFinder.self)
-        XCTAssertEqual(bundle, .secondFoundation)
-    }
 }

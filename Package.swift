@@ -14,12 +14,12 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "SecondFoundation",
-            resources: [.process("Assets")]
+            name: "SecondFoundation"
         ),
         .testTarget(
             name: "SecondFoundationTests",
-            dependencies: ["SecondFoundation"]
+            dependencies: ["SecondFoundation"],
+            resources: [.process("Assets")]
         )
     ]
 )

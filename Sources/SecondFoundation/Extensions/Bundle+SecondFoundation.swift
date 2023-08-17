@@ -42,6 +42,6 @@ public extension Bundle {
             }
         }
         
-        return .module
+        preconditionFailure("Couldn't find bundle with name: " + bundleName)
     }
 }
