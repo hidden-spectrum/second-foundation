@@ -28,6 +28,11 @@ public struct StoreReviewPromptManagerEvent {
 
 public final class StoreReviewPromptManager {
     
+    // MARK: Public
+    
+    public typealias KarmaClosure = (Int) -> Void
+    public typealias LastPromptVersionClosure = (String) -> Void
+    
     // MARK: Public private(set)
     
     @AppStorage(.reviewPromptKarma) public private(set) var karma = 0
@@ -43,19 +48,39 @@ public final class StoreReviewPromptManager {
     
     private let logger = Logger(subsystem: "io.hiddenspectrum.secondfoundation", category: "StoreReviewPromptManager")
     
+    private var karmaChangeAction: KarmaClosure?
+    private var promptedForReviewAction: LastPromptVersionClosure?
+    
     // MARK: Lifecycle
     
     public init(promptThreshold: UInt) {
         self.promptThreshold = promptThreshold
     }
     
+    // MARK: Setup
+    
+    public func onKarmaChange(perform action: KarmaClosure?) -> Self {
+        karmaChangeAction = action
+        return self
+    }
+    public func onPromptedForReview(perform action: LastPromptVersionClosure?) -> Self {
+        promptedForReviewAction = action
+        return self
+    }
+    
     // MARK: Event logging
     
     public func logPoints(for event: StoreReviewPromptManagerEvent) {
+        defer {
+            karmaChangeAction?(karma)
+        }
+        
         karma += event.points
+        
         guard karma >= promptThreshold else {
             return
         }
+        
         if let appVersion = appInfo?.version {
             if lastPromptVersion != appVersion {
                 promptForStoreReview(delay: event.promptDelayInSeconds)
@@ -72,8 +97,13 @@ public final class StoreReviewPromptManager {
         Task { @MainActor in
             try? await Task.sleep(nanoseconds: delay * 1_000_000_000)
             SKStoreReviewController.requestReview()
-            lastPromptVersion = appInfo?.version
+            
             karma = 0
+            
+            if let appVersion = appInfo?.version {
+                lastPromptVersion = appVersion
+                promptedForReviewAction?(appVersion)
+            }
         }
     }
 }
