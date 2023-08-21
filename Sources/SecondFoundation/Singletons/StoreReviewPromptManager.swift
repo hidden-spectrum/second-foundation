@@ -31,7 +31,7 @@ public final class StoreReviewPromptManager {
     // MARK: Public
     
     public typealias KarmaClosure = (Int) -> Void
-    public typealias LastPromptVersionClosure = (String) -> Void
+    public typealias LastPromptVersionClosure = (String?) -> Void
     
     // MARK: Public private(set)
     
@@ -41,15 +41,15 @@ public final class StoreReviewPromptManager {
     
     @AppStorage(.lastVersionPromptedForStoreReview) var lastPromptVersion: String?
     
-    let appInfo = AppInfo()
     let promptThreshold: UInt
     
     // MARK: Private
     
+    private let appInfo = AppInfo()
     private let logger = Logger(subsystem: "io.hiddenspectrum.secondfoundation", category: "StoreReviewPromptManager")
     
     private var karmaChangeAction: KarmaClosure?
-    private var promptedForReviewAction: LastPromptVersionClosure?
+    private var willPromptForReviewAction: LastPromptVersionClosure?
     
     // MARK: Lifecycle
     
@@ -59,12 +59,15 @@ public final class StoreReviewPromptManager {
     
     // MARK: Setup
     
+    @discardableResult
     public func onKarmaChange(perform action: KarmaClosure?) -> Self {
         karmaChangeAction = action
         return self
     }
-    public func onPromptedForReview(perform action: LastPromptVersionClosure?) -> Self {
-        promptedForReviewAction = action
+    
+    @discardableResult
+    public func onWillPromptForReview(perform action: LastPromptVersionClosure?) -> Self {
+        willPromptForReviewAction = action
         return self
     }
     
@@ -94,16 +97,15 @@ public final class StoreReviewPromptManager {
     // MARK: Prompt
     
     private func promptForStoreReview(delay: UInt64) {
+        karma = 0
+        
+        let appVersion = appInfo?.version
+        lastPromptVersion = appVersion
+        willPromptForReviewAction?(appVersion)
+        
         Task { @MainActor in
             try? await Task.sleep(nanoseconds: delay * 1_000_000_000)
             SKStoreReviewController.requestReview()
-            
-            karma = 0
-            
-            if let appVersion = appInfo?.version {
-                lastPromptVersion = appVersion
-                promptedForReviewAction?(appVersion)
-            }
         }
     }
 }

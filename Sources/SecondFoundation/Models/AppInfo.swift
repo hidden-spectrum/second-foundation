@@ -19,10 +19,10 @@ public struct AppInfo {
     
     // MARK: Lifecycle
     
-    init?() {
-        guard let buildNumberString = Bundle.main.infoDictionary?["CFBundleVersion"] as? String,
+    init?(bundle: Bundle = .main) {
+        guard let buildNumberString = bundle.infoDictionary?["CFBundleVersion"] as? String,
               let buildNumber = Int(buildNumberString),
-              let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
+              let version = bundle.infoDictionary?["CFBundleShortVersionString"] as? String
         else {
             logger.error("Unable to init AppInfo, bundle information may not be present")
             return nil
