@@ -7,19 +7,7 @@ import Foundation
 
 public extension FileManager {
     
-    /// Grabs the contents of given directory asynchronously.
-    func contentsOfDirectory(at url: URL, includingPropertiesForKeys keys: [URLResourceKey]?, options mask: FileManager.DirectoryEnumerationOptions = []) async throws -> [URL] {
-        return try await withCheckedThrowingContinuation { continuation in
-            do {
-                let files = try self.contentsOfDirectory(at: url, includingPropertiesForKeys: keys, options: mask)
-                continuation.resume(returning: files)
-            } catch {
-                continuation.resume(throwing: error)
-            }
-        }
-    }
-    
-    func enumerator(for url: URL, includingPropertiesForKeys keys: [URLResourceKey]? = nil, options mask: DirectoryEnumerationOptions = []) async -> AsyncDirectoryEnumerator? {
+    func enumerator(for url: URL, includingPropertiesForKeys keys: [URLResourceKey]? = nil, options mask: DirectoryEnumerationOptions = []) -> AsyncDirectoryEnumerator? {
         return AsyncDirectoryEnumerator(using: self, for: url, includingPropertiesForKeys: keys, options: mask)
     }
 }
