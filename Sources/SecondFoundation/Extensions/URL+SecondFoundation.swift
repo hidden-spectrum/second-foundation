@@ -21,4 +21,8 @@ public extension URL {
     func replacingFileExtension(with utType: UTType) -> URL {
         return deletingPathExtension().appendingPathExtension(for: utType)
     }
+    
+    var totalFileSize: Int? {
+        try? resourceValues(forKeys: [.totalFileSizeKey]).totalFileSize
+    }
 }
