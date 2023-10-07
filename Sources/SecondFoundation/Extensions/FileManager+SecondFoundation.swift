@@ -7,9 +7,14 @@ import Foundation
 
 public extension FileManager {
     
-    func enumerator(for url: URL, includingPropertiesForKeys keys: [URLResourceKey]? = nil, options mask: DirectoryEnumerationOptions = []) -> AsyncDirectoryEnumerator? {
-        return AsyncDirectoryEnumerator(using: self, for: url, includingPropertiesForKeys: keys, options: mask)
+    func enumerator(for url: URL, includingPropertiesForKeys keys: [URLResourceKey]? = nil, options mask: DirectoryEnumerationOptions = []) throws -> AsyncDirectoryEnumerator {
+        return try AsyncDirectoryEnumerator(using: self, for: url, includingPropertiesForKeys: keys, options: mask)
     }
+}
+
+
+public enum AsyncDirectoryEnumeratorError: Error {
+    case couldNotCreateEnumerator
 }
 
 
@@ -26,9 +31,9 @@ public final class AsyncDirectoryEnumerator: AsyncSequence {
     
     // MARK: Lifecycle
     
-    init?(using fileManager: FileManager, for url: URL, includingPropertiesForKeys keys: [URLResourceKey]?, options mask: FileManager.DirectoryEnumerationOptions) {
+    init(using fileManager: FileManager, for url: URL, includingPropertiesForKeys keys: [URLResourceKey]?, options mask: FileManager.DirectoryEnumerationOptions) throws {
         guard let enumerator = fileManager.enumerator(at: url, includingPropertiesForKeys: keys, options: mask) else {
-            return nil
+            throw AsyncDirectoryEnumeratorError.couldNotCreateEnumerator
         }
         self.enumerator = enumerator
     }

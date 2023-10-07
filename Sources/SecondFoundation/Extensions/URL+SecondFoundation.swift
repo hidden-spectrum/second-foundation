@@ -22,6 +22,11 @@ public extension URL {
         return deletingPathExtension().appendingPathExtension(for: utType)
     }
     
+    /// Returns whether the URL is a directory by checking `resourceValues`, if available.
+    var isDirectory: Bool? {
+        try? resourceValues(forKeys: [.isDirectoryKey]).isDirectory
+    }
+    
     /// Returns the file size from` resourceValues`, if available.
     var totalFileSize: Int64? {
         if let fileSize = try? resourceValues(forKeys: [.totalFileSizeKey]).totalFileSize {
