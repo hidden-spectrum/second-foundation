@@ -22,7 +22,12 @@ public extension URL {
         return deletingPathExtension().appendingPathExtension(for: utType)
     }
     
-    var totalFileSize: Int? {
-        try? resourceValues(forKeys: [.totalFileSizeKey]).totalFileSize
+    /// Returns the file size from` resourceValues`, if available.
+    var totalFileSize: Int64? {
+        if let fileSize = try? resourceValues(forKeys: [.totalFileSizeKey]).totalFileSize {
+            return Int64(fileSize)
+        } else {
+            return nil
+        }
     }
 }

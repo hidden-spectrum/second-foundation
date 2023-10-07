@@ -3,6 +3,7 @@
 //
 
 import Foundation
+import SwiftUI
 
 
 public struct DurationFormatter {
@@ -30,5 +31,20 @@ public struct DurationFormatter {
         if milliseconds > 0 { components.append("\(milliseconds)ms") }
         
         return components.joined(separator: " ")
+    }
+}
+
+
+public extension LocalizedStringKey.StringInterpolation {
+    mutating func appendInterpolation(duration: TimeInterval) {
+        let durationText = DurationFormatter().string(for: duration)
+        appendInterpolation(durationText)
+    }
+}
+
+public extension String.StringInterpolation {
+    mutating func appendInterpolation(duration: TimeInterval) {
+        let durationText = DurationFormatter().string(for: duration)
+        appendInterpolation(durationText)
     }
 }
