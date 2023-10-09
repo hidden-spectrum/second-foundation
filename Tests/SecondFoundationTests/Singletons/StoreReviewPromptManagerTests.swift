@@ -40,7 +40,7 @@ final class StoreReviewPromptManagerTests: XCTestCase {
 
     func testPromptThresholdReached() {
         reviewPromptManager.onWillPromptForReview { version in
-            XCTAssertNil(version)
+            XCTAssertNotNil(version)
         }
         reviewPromptManager.logPoints(for: .init(points: 5))
         XCTAssertEqual(reviewPromptManager.karma, 0)
