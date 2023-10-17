@@ -19,7 +19,7 @@ public struct AppInfo {
     
     // MARK: Lifecycle
     
-    init?(bundle: Bundle = .main) {
+    public init?(bundle: Bundle = .main) {
         guard let buildNumberString = bundle.infoDictionary?["CFBundleVersion"] as? String,
               let buildNumber = Int(buildNumberString),
               let version = bundle.infoDictionary?["CFBundleShortVersionString"] as? String
