@@ -7,7 +7,7 @@ import UniformTypeIdentifiers
 
 
 public extension URL {
-
+    
     /// Appends the filename from another URL replacing it's extension with the given `UTType`.
     /// - Parameter utType: `UTType` of the file extension to use.
     /// - Returns: Completed `URL`.
@@ -33,6 +33,24 @@ public extension URL {
             return Int64(fileSize)
         } else {
             return nil
+        }
+    }
+}
+
+public extension Array where Element == URL {
+    
+    /// Sorts the array of URLs by the folder path then the file name. This assumes all URLs are for a file.
+    /// - Returns: Sorted array.
+    func sortedByFolderPathThenFilename() -> [URL] {
+        sorted {
+            let lhsPath = $0.deletingLastPathComponent().path
+            let rhsPath = $1.deletingLastPathComponent().path
+            
+            if lhsPath == rhsPath {
+                return $0.lastPathComponent < $1.lastPathComponent
+            } else {
+                return lhsPath < rhsPath
+            }
         }
     }
 }
