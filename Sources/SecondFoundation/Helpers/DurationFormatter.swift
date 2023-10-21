@@ -34,6 +34,21 @@ public struct DurationFormatter {
     }
 }
 
+public extension TimeInterval {
+    func asHMSMSString() -> String {
+        DurationFormatter().string(for: self)
+    }
+}
+
+
+@available(macOS 13, *)
+public extension LocalizedStringResource.StringInterpolation {
+    mutating func appendInterpolation(duration: TimeInterval) {
+        let durationText = DurationFormatter().string(for: duration)
+        appendInterpolation(durationText)
+    }
+}
+
 
 public extension LocalizedStringKey.StringInterpolation {
     mutating func appendInterpolation(duration: TimeInterval) {

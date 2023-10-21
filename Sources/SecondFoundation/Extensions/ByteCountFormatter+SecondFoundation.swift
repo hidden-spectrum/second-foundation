@@ -14,6 +14,21 @@ private let byteCountFormatter: ByteCountFormatter = {
 }()
 
 
+public extension Int64 {
+    func fileSizeString() -> String {
+        byteCountFormatter.string(fromByteCount: self)
+    }
+}
+
+
+@available(macOS 13, *)
+public extension LocalizedStringResource.StringInterpolation {
+    mutating func appendInterpolation(fileSize: Int64) {
+        appendInterpolation(byteCountFormatter.string(fromByteCount: fileSize))
+    }
+}
+
+
 public extension LocalizedStringKey.StringInterpolation {
     mutating func appendInterpolation(fileSize: Int64) {
         appendInterpolation(byteCountFormatter.string(fromByteCount: fileSize))
