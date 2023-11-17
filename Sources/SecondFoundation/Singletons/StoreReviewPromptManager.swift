@@ -74,11 +74,8 @@ public final class StoreReviewPromptManager {
     // MARK: Event logging
     
     public func logPoints(for event: StoreReviewPromptManagerEvent) {
-        defer {
-            karmaChangeAction?(karma)
-        }
-        
         karma += event.points
+        karmaChangeAction?(karma)
         
         guard karma >= promptThreshold else {
             return
