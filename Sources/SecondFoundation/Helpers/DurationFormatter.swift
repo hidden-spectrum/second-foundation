@@ -42,6 +42,7 @@ public extension TimeInterval {
 
 
 @available(macOS 13, *)
+@available(iOS 16, *)
 public extension LocalizedStringResource.StringInterpolation {
     mutating func appendInterpolation(duration: TimeInterval) {
         let durationText = DurationFormatter().string(for: duration)
