@@ -1,6 +1,6 @@
 ## Second Foundation
 
-**Miscellaneous convenience APIs for Apple's Frameworks.**
+*Miscellaneous convenience APIs for Apple's Frameworks.*
 
 
 ### Features
