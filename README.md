@@ -5,6 +5,11 @@
 
 ### Features
 
+#### CoreGraphics
+
+* System for registering custom fonts
+
+
 #### Foundation
 
 * Additional APIs for constructing file URLs
