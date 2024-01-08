@@ -31,11 +31,7 @@ public struct ColorSet: Hashable {
     
     // Bundle
     
-    public static func single<BC: BundleColor>(_ color: BC) -> ColorSet {
-        .init(base: Color(color.name, bundle: color.bundle))
-    }
-    
-    public static func single<BC: BundleColor>(_ color: BC, opacity: CGFloat) -> ColorSet {
+    public static func single<BC: BundleColor>(_ color: BC, opacity: CGFloat = 1) -> ColorSet {
         .init(base: Color(color.name, bundle: color.bundle).opacity(opacity))
     }
     
@@ -48,16 +44,16 @@ public struct ColorSet: Hashable {
     
     // Mixed
     
-    public static func vibrantVaried<BC: BundleColor>(_ color: Color, vibrant: BC) -> ColorSet {
+    public static func vibrantVaried<BC: BundleColor>(_ color: Color, vibrant: BC, opacity: CGFloat = 1) -> ColorSet {
         .init(
             base: color,
-            vibrant: Color(vibrant.name, bundle: vibrant.bundle)
+            vibrant: Color(vibrant.name, bundle: vibrant.bundle).opacity(opacity)
         )
     }
     
-    public static func vibrantVaried<BC: BundleColor>(_ color: BC, vibrant: Color) -> ColorSet {
+    public static func vibrantVaried<BC: BundleColor>(_ color: BC, vibrant: Color, opacity: CGFloat = 1) -> ColorSet {
         .init(
-            base: Color(color.name, bundle: color.bundle),
+            base: Color(color.name, bundle: color.bundle).opacity(opacity),
             vibrant: vibrant
         )
     }
