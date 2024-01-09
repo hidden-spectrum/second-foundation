@@ -1,5 +1,5 @@
 //
-//  Copyright © 2023 Hidden Spectrum, LLC. All rights reserved.
+//  Copyright © 2023 Hidden Spectrum, LLC.
 //
 
 import SecondFoundation

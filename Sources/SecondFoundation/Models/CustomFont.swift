@@ -1,5 +1,5 @@
 //
-//  Copyright © 2024 Mlee, Inc. All rights reserved.
+//  Copyright © 2024 Hidden Spectrum, LLC.
 //
 
 #if canImport(AppKit)

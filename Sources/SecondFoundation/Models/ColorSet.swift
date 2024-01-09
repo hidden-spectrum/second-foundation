@@ -1,11 +1,11 @@
 //
-//  Copyright © 2024 Hidden Spectrum, LLC. All rights reserved.
+//  Copyright © 2024 Hidden Spectrum, LLC.
 //
 
 import SwiftUI
 
 
-public struct ColorSet: Hashable {
+public struct ColorSet<ACC: AssetCatalogColorProvider>: Hashable {
     
     // MARK: Internal
     
@@ -31,11 +31,11 @@ public struct ColorSet: Hashable {
     
     // Bundle
     
-    public static func single<BC: BundleColor>(_ color: BC, opacity: CGFloat = 1) -> ColorSet {
+    public static func single(_ color: ACC, opacity: CGFloat = 1) -> ColorSet {
         .init(base: Color(color.name, bundle: color.bundle).opacity(opacity))
     }
     
-    public static func vibrantVaried<BC: BundleColor, VBC: BundleColor>(_ color: BC, vibrant: VBC) -> ColorSet {
+    public static func vibrantVaried(_ color: ACC, vibrant: ACC) -> ColorSet {
         .init(
             base: Color(color.name, bundle: color.bundle),
             vibrant: Color(vibrant.name, bundle: vibrant.bundle)
@@ -44,14 +44,14 @@ public struct ColorSet: Hashable {
     
     // Mixed
     
-    public static func vibrantVaried<BC: BundleColor>(_ color: Color, vibrant: BC, opacity: CGFloat = 1) -> ColorSet {
+    public static func vibrantVaried(_ color: Color, vibrant: ACC, opacity: CGFloat = 1) -> ColorSet {
         .init(
             base: color,
             vibrant: Color(vibrant.name, bundle: vibrant.bundle).opacity(opacity)
         )
     }
     
-    public static func vibrantVaried<BC: BundleColor>(_ color: BC, vibrant: Color, opacity: CGFloat = 1) -> ColorSet {
+    public static func vibrantVaried(_ color: ACC, vibrant: Color, opacity: CGFloat = 1) -> ColorSet {
         .init(
             base: Color(color.name, bundle: color.bundle).opacity(opacity),
             vibrant: vibrant
