@@ -5,11 +5,11 @@
 import Foundation
 
 
-public struct LaunchArgument {
+public struct EnvironmentVariable {
     
     // MARK: Public
     
-    public typealias Argument = LaunchArgument
+    public typealias Variable = EnvironmentVariable
     
     public let key: String
     
@@ -21,7 +21,7 @@ public struct LaunchArgument {
 }
 
 public extension ProcessInfo {
-    static func hasLaunchArgument(_ argument: LaunchArgument) -> Bool {
-        processInfo.arguments.contains(argument.key)
+    static func value(for environmentVariable: EnvironmentVariable) -> String? {
+        processInfo.environment[environmentVariable.key]
     }
 }
