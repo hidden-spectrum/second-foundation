@@ -5,7 +5,7 @@ import PackageDescription
 
 let package = Package(
     name: "SecondFoundation",
-    platforms: [.macOS(.v11), .iOS(.v14)],
+    platforms: [.macOS(.v11), .iOS(.v14), .tvOS(.v14)],
     products: [
         .library(
             name: "SecondFoundation",
