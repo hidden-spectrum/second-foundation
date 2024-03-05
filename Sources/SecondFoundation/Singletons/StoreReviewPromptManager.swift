@@ -26,6 +26,7 @@ public struct StoreReviewPromptManagerEvent {
 }
 
 
+@available(macOS 12, iOS 15, *)
 public final class StoreReviewPromptManager {
     
     // MARK: Public
@@ -102,7 +103,7 @@ public final class StoreReviewPromptManager {
         
         Task { @MainActor in
             try? await Task.sleep(nanoseconds: delay * 1_000_000_000)
-            SKStoreReviewController.requestReview()
+//            SKStoreReviewController.requestReview()
         }
     }
 }
