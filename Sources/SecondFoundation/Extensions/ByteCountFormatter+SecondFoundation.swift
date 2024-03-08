@@ -21,8 +21,7 @@ public extension Int64 {
 }
 
 
-@available(macOS 13, *)
-@available(iOS 16, *)
+@available(macOS 13, iOS 16, tvOS 16, *)
 public extension LocalizedStringResource.StringInterpolation {
     mutating func appendInterpolation(fileSize: Int64) {
         appendInterpolation(byteCountFormatter.string(fromByteCount: fileSize))
