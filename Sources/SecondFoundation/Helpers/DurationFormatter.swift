@@ -1,5 +1,5 @@
 //
-//  Copyright © 2023 Hidden Spectrum, LLC. All rights reserved.
+//  Copyright © 2023 Hidden Spectrum, LLC.
 //
 
 import Foundation
@@ -41,8 +41,7 @@ public extension TimeInterval {
 }
 
 
-@available(macOS 13, *)
-@available(iOS 16, *)
+@available(iOS 16, macOS 13, tvOS 16, *)
 public extension LocalizedStringResource.StringInterpolation {
     mutating func appendInterpolation(duration: TimeInterval) {
         let durationText = DurationFormatter().string(for: duration)

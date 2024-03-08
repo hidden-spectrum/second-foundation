@@ -1,6 +1,8 @@
 //
-//  Copyright © 2023 Hidden Spectrum, LLC. All rights reserved.
+//  Copyright © 2023 Hidden Spectrum, LLC.
 //
+
+#if os(iOS) || os(macOS)
 
 @testable import SecondFoundation
 import XCTest
@@ -46,3 +48,5 @@ final class StoreReviewPromptManagerTests: XCTestCase {
         XCTAssertEqual(reviewPromptManager.karma, 0)
     }
 }
+
+#endif

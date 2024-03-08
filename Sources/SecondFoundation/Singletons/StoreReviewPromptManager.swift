@@ -1,5 +1,5 @@
 //
-//  Copyright © 2023 Hidden Spectrum, LLC. All rights reserved.
+//  Copyright © 2023 Hidden Spectrum, LLC.
 //
 
 import Foundation
@@ -7,6 +7,8 @@ import os.log
 import StoreKit
 import SwiftUI
 
+
+#if os(iOS) || os(macOS)
 
 public struct StoreReviewPromptManagerEvent {
     
@@ -26,6 +28,7 @@ public struct StoreReviewPromptManagerEvent {
 }
 
 
+@available(macOS 12, iOS 15, *)
 public final class StoreReviewPromptManager {
     
     // MARK: Public
@@ -112,3 +115,5 @@ private extension String {
     static let reviewPromptKarma = "StoreReviewPromptKarma"
     static let lastVersionPromptedForStoreReview = "LastVersionPromptedForStoreReview"
 }
+
+#endif

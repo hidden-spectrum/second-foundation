@@ -1,5 +1,5 @@
 //
-//  Copyright © 2023 Hidden Spectrum, LLC. All rights reserved.
+//  Copyright © 2023 Hidden Spectrum, LLC.
 //
 
 import Foundation
@@ -15,7 +15,7 @@ public struct AppInfo {
     
     // MARK: Private
     
-    private let logger = Logger(subsystem: "ios.hiddenspectrum.secondfoundation", category: "AppInfo")
+    private let logger = Logger(subsystem: "io.hiddenspectrum.secondfoundation", category: "AppInfo")
     
     // MARK: Lifecycle
     
