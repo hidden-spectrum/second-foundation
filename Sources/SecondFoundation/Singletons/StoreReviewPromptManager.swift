@@ -8,6 +8,8 @@ import StoreKit
 import SwiftUI
 
 
+#if os(iOS) || os(macOS)
+
 public struct StoreReviewPromptManagerEvent {
     
     // MARK: Public
@@ -103,7 +105,7 @@ public final class StoreReviewPromptManager {
         
         Task { @MainActor in
             try? await Task.sleep(nanoseconds: delay * 1_000_000_000)
-//            SKStoreReviewController.requestReview()
+            SKStoreReviewController.requestReview()
         }
     }
 }
@@ -113,3 +115,5 @@ private extension String {
     static let reviewPromptKarma = "StoreReviewPromptKarma"
     static let lastVersionPromptedForStoreReview = "LastVersionPromptedForStoreReview"
 }
+
+#endif
