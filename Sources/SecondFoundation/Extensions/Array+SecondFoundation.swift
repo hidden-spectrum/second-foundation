@@ -18,4 +18,8 @@ public extension Array {
         let offset = (amount % count + count) % count
         return Array(self[offset ..< count] + self[0 ..< offset])
     }
+    
+    func withIndex() -> [(index: Int, element: Element)] {
+        enumerated().map { ($0, $1) }
+    }
 }
