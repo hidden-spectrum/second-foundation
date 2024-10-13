@@ -5,7 +5,7 @@
 import Foundation
 
 
-public struct LaunchArgument {
+public struct LaunchArgument: Sendable {
     
     // MARK: Public
     
