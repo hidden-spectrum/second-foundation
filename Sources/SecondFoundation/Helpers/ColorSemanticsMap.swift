@@ -5,6 +5,7 @@
 import SwiftUI
 
 
+@MainActor
 public struct ColorSemanticsMap<CR: ColorRoleProvider, ACC: AssetCatalogColorProvider> {
     
     // MARK: Internal

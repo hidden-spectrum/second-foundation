@@ -6,7 +6,7 @@ import Foundation
 import SwiftUI
 
 
-private let byteCountFormatter: ByteCountFormatter = {
+nonisolated(unsafe) private let byteCountFormatter: ByteCountFormatter = {
     let byteCountFormatter = ByteCountFormatter()
     byteCountFormatter.allowedUnits = [.useAll]
     byteCountFormatter.countStyle = .file
