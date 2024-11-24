@@ -9,7 +9,7 @@ import os.log
 
 
 @available(iOS 17, macOS 14, tvOS 17, watchOS 10, *)
-public actor LocationManager: ObservableObject {
+public actor LocationManager {
     
     // MARK: Public
     
@@ -18,17 +18,6 @@ public actor LocationManager: ObservableObject {
     
     public typealias LocationStream = AsyncStream<CLLocation?>
     public typealias PlacemarkStream = AsyncStream<CLPlacemark?>
-    
-    public lazy var locationStream: LocationStream = {
-        LocationStream { continuation in
-            self.locationContinuation = continuation
-        }
-    }()
-    public lazy var placemarkStream: PlacemarkStream = {
-        PlacemarkStream { continuation in
-            self.placemarkContinuation = continuation
-        }
-    }()
     
     // MARK: Private
     
@@ -39,12 +28,12 @@ public actor LocationManager: ObservableObject {
     
     private var currentPlacemark: CLPlacemark? {
         didSet {
-            placemarkContinuation?.yield(currentPlacemark)
+            placemarkContinuations.forEach { $0.value.yield(currentPlacemark) }
         }
     }
     private var currentLocation: CLLocation? {
         didSet {
-            locationContinuation?.yield(currentLocation)
+            locationContinuations.forEach { $0.value.yield(currentLocation) }
         }
     }
     
@@ -53,8 +42,8 @@ public actor LocationManager: ObservableObject {
         return authStatus == .authorizedWhenInUse || authStatus == .authorizedAlways
     }
     private var isUpdating = false
-    private var locationContinuation: LocationStream.Continuation?
-    private var placemarkContinuation: PlacemarkStream.Continuation?
+    private var locationContinuations: [UUID: LocationStream.Continuation] = [:]
+    private var placemarkContinuations: [UUID: PlacemarkStream.Continuation] = [:]
     
     // MARK: Lifecycle
     
@@ -71,6 +60,40 @@ public actor LocationManager: ObservableObject {
             return
         }
         locationManager.requestWhenInUseAuthorization()
+    }
+    
+    // MARK: Streams
+    
+    public func createLocationStream() -> LocationStream {
+        LocationStream { continuation in
+            let id = UUID()
+            self.locationContinuations[id] = continuation
+            continuation.onTermination = { [weak self] _ in
+                Task {
+                    await self?.removeLocationContinuation(withId: id)
+                }
+            }
+        }
+    }
+    
+    private func removeLocationContinuation(withId id: UUID) {
+        locationContinuations.removeValue(forKey: id)
+    }
+    
+    public func createPlacemarkStream() -> PlacemarkStream {
+        PlacemarkStream { continuation in
+            let id = UUID()
+            self.placemarkContinuations[id] = continuation
+            continuation.onTermination = { [weak self] _ in
+                Task {
+                    await self?.removeLocationContinuation(withId: id)
+                }
+            }
+        }
+    }
+    
+    private func removePlacemarkContinuation(withId id: UUID) {
+        placemarkContinuations.removeValue(forKey: id)
     }
     
     // MARK: Location
@@ -116,7 +139,6 @@ public actor LocationManager: ObservableObject {
         }
         
         self.currentLocation = location
-        locationContinuation?.yield(location)
         log.debug("Set location: \(location.debugDescription)")
         
         await setPlacemark(with: location)

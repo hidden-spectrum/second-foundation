@@ -10,17 +10,17 @@ import os.log
 
 @available(iOS 17, macOS 14, tvOS 17, watchOS 10, *)
 @MainActor
-@Observable
-public final class ObservableLocation {
+public final class ObservableLocation: ObservableObject {
     
     // MARK: Public private(set)
     
-    public private(set) var placemark: CLPlacemark?
-    public private(set) var current: CLLocation?
+    @Published public private(set) var placemark: CLPlacemark?
+    @Published public private(set) var current: CLLocation?
     
     // MARK: Private
     
     private let locationManager = LocationManager.shared
+    private var tasks: [Task<Void, Never>] = []
     
     // MARK: Lifecycle
     
@@ -29,19 +29,26 @@ public final class ObservableLocation {
         startUpdatingLocation()
     }
     
+    deinit {
+        tasks.forEach { $0.cancel() }
+    }
+    
     private func subscribeToPlacemarkUpdates() {
-        Task {
-            let stream = await self.locationManager.locationStream
+        let placemarkTask = Task { [unowned self] in
+            let stream = await self.locationManager.createLocationStream()
             for await location in stream {
                 self.current = location
             }
         }
-        Task {
-            let placemarkStream = await self.locationManager.placemarkStream
+        tasks.append(placemarkTask)
+        
+        let locationTask = Task { [unowned self] in
+            let placemarkStream = await self.locationManager.createPlacemarkStream()
             for await placemark in placemarkStream {
                 self.placemark = placemark
             }
         }
+        tasks.append(locationTask)
     }
     
     // MARK: Location Manager
