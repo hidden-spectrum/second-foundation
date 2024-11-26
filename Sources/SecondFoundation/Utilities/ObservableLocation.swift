@@ -34,7 +34,9 @@ public final class ObservableLocation: ObservableObject {
     }
     
     private func subscribeToPlacemarkUpdates() {
-        let placemarkTask = Task { [unowned self] in
+        let placemarkTask = Task { [weak self] in
+            guard let self else { return }
+            
             let stream = await self.locationManager.createLocationStream()
             for await location in stream {
                 self.current = location
@@ -42,7 +44,9 @@ public final class ObservableLocation: ObservableObject {
         }
         tasks.append(placemarkTask)
         
-        let locationTask = Task { [unowned self] in
+        let locationTask = Task { [weak self] in
+            guard let self else { return }
+            
             let placemarkStream = await self.locationManager.createPlacemarkStream()
             for await placemark in placemarkStream {
                 self.placemark = placemark
