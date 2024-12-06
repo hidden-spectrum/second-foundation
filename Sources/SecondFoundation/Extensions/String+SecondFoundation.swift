@@ -7,7 +7,7 @@ import Foundation
 
 public extension String {
     var trimmedNullIfEmpty: String? {
-        trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? nil : self
+        trimmed.isEmpty ? nil : trimmed
     }
     
     var trimmed: String {
