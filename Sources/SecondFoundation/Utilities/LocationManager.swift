@@ -60,6 +60,7 @@ public actor LocationManager {
             return
         }
         locationManager.requestWhenInUseAuthorization()
+        log.info("Requested location authorization")
     }
     
     // MARK: Streams
@@ -98,23 +99,30 @@ public actor LocationManager {
     
     // MARK: Location
     
-    public func startUpdatingLocation() {
-        guard isUpdating == false, hasAuthorization else {
-            log.warning("Already updating or not authorized")
+    public func startUpdatingLocation() async {
+        guard hasAuthorization else {
+            log.warning("Not authorized to access location")
             return
         }
-        log.info("Starting location updates")
-        isUpdating = true
-        Task.detached(priority: .background) {
+        
+        guard isUpdating == false else {
+            log.info("Already updating location")
+            return
+        }
+        
+        Task.detached(priority: .background) { [log] in
+            log.info("Starting location updates")
+            await self.setUpdating(true)
             do {
                 let updates = CLLocationUpdate.liveUpdates()
                 for try await update in updates {
                     await self.processUpdate(update)
                 }
+                log.info("No longer processing location updates")
             } catch {
-                self.log.error("Error with location stream: \(error)")
-                await self.setUpdating(false)
+                log.error("Error with location stream: \(error)")
             }
+            await self.setUpdating(false)
         }
     }
     

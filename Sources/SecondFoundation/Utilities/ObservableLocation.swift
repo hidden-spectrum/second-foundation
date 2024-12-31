@@ -26,7 +26,6 @@ public final class ObservableLocation: ObservableObject {
     
     public init() {
         subscribeToPlacemarkUpdates()
-        startUpdatingLocation()
     }
     
     deinit {
@@ -57,7 +56,7 @@ public final class ObservableLocation: ObservableObject {
     
     // MARK: Location Manager
     
-    func startUpdatingLocation() {
+    public func startUpdatingLocation() {
         Task {
             await locationManager.requestAuthorization()
             await locationManager.startUpdatingLocation()
