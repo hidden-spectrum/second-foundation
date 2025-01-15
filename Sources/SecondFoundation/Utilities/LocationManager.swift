@@ -55,12 +55,23 @@ public actor LocationManager {
     
     // MARK: Authorization
     
-    public func requestAuthorization() {
+    public func requestAuthorization() async {
         if hasAuthorization {
             return
         }
         locationManager.requestWhenInUseAuthorization()
         log.info("Requested location authorization")
+        await waitForAuthorization()
+    }
+    
+    func waitForAuthorization(timeout: TimeInterval = 10) async {
+        let startTime = Date()
+        while locationManager.authorizationStatus == .notDetermined {
+            if Date().timeIntervalSince(startTime) > timeout {
+                return
+            }
+            try? await Task.sleep(nanoseconds: 500_000_000) // 0.5 seconds
+        }
     }
     
     // MARK: Streams
