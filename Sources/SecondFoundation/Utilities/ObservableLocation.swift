@@ -17,6 +17,11 @@ public final class ObservableLocation: ObservableObject {
     @Published public private(set) var placemark: CLPlacemark?
     @Published public private(set) var current: CLLocation?
     
+    public var hasAuthorization: Bool {
+        let authStatus = CLLocationManager().authorizationStatus
+        return authStatus == .authorizedWhenInUse || authStatus == .authorizedAlways
+    }
+    
     // MARK: Private
     
     private let locationManager = LocationManager.shared
