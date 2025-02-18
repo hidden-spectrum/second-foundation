@@ -12,6 +12,10 @@ import os.log
 @MainActor
 public final class ObservableLocation: ObservableObject {
     
+    // MARK: Public
+    
+    public let distanceChangeRequirement: CLLocationDistance
+    
     // MARK: Public private(set)
     
     @Published public private(set) var placemark: CLPlacemark?
@@ -25,25 +29,34 @@ public final class ObservableLocation: ObservableObject {
     // MARK: Private
     
     private let locationManager = LocationManager.shared
+    
     private var tasks: [Task<Void, Never>] = []
     
     // MARK: Lifecycle
     
-    public init() {
-        subscribeToPlacemarkUpdates()
+    public init(distanceChangeRequirement: CLLocationDistance = 50) {
+        self.distanceChangeRequirement = distanceChangeRequirement
+        subscribeToUpdates()
     }
     
     deinit {
         tasks.forEach { $0.cancel() }
     }
     
-    private func subscribeToPlacemarkUpdates() {
+    private func subscribeToUpdates() {
         let placemarkTask = Task { [weak self] in
             guard let self else { return }
             
             let stream = await self.locationManager.createLocationStream()
-            for await location in stream {
-                self.current = location
+            for await newLocation in stream {
+                guard let newLocation else {
+                    continue
+                }
+                if let currentLocation = current, newLocation.distance(from: currentLocation) >= distanceChangeRequirement {
+                    self.current = newLocation
+                } else {
+                    self.current = newLocation
+                }
             }
         }
         tasks.append(placemarkTask)
@@ -61,11 +74,11 @@ public final class ObservableLocation: ObservableObject {
     
     // MARK: Location Manager
     
-    public func startUpdatingLocation() {
-        Task {
-            await locationManager.requestAuthorization()
-            await locationManager.startUpdatingLocation()
-        }
+    public func startUpdatingLocation() async {
+        await locationManager.requestAuthorization()
+        await locationManager.startUpdatingLocation()
+        current = await locationManager.currentLocation
+        placemark = await locationManager.currentPlacemark
     }
     
     public func forcePlacemarkUpdate() {

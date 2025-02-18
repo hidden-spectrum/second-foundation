@@ -19,23 +19,25 @@ public actor LocationManager {
     public typealias LocationStream = AsyncStream<CLLocation?>
     public typealias PlacemarkStream = AsyncStream<CLPlacemark?>
     
+    // MARK: Public private(set)
+    
+    public private(set) var currentPlacemark: CLPlacemark? {
+        didSet {
+            placemarkContinuations.forEach { $0.value.yield(currentPlacemark) }
+        }
+    }
+    public private(set) var currentLocation: CLLocation? {
+        didSet {
+            locationContinuations.forEach { $0.value.yield(currentLocation) }
+        }
+    }
+    
     // MARK: Private
     
     private let desiredAccuracy: CLLocationAccuracy
     private let fetchPlacemark: Bool
     private let locationManager = CLLocationManager()
     private let log = Logger(subsystem: "io.hspec.SecondFoundation", category: "LocationManager")
-    
-    private var currentPlacemark: CLPlacemark? {
-        didSet {
-            placemarkContinuations.forEach { $0.value.yield(currentPlacemark) }
-        }
-    }
-    private var currentLocation: CLLocation? {
-        didSet {
-            locationContinuations.forEach { $0.value.yield(currentLocation) }
-        }
-    }
     
     private var hasAuthorization: Bool {
         let authStatus = locationManager.authorizationStatus
@@ -110,7 +112,7 @@ public actor LocationManager {
     
     // MARK: Location
     
-    public func startUpdatingLocation() async {
+    public func startUpdatingLocation() {
         guard hasAuthorization else {
             log.warning("Not authorized to access location")
             return
