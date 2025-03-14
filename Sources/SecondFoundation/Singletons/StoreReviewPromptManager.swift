@@ -10,7 +10,12 @@ import SwiftUI
 
 #if os(iOS) || os(macOS)
 
-public struct StoreReviewPromptManagerEvent {
+public extension EnvironmentValues {
+    @Entry var reviewPromptManager: StoreReviewPromptManager = StoreReviewPromptManager(promptThreshold: 100)
+}
+
+
+public struct StoreReviewPromptManagerEvent: Sendable {
     
     // MARK: Public
     
