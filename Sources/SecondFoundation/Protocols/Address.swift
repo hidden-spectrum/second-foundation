@@ -51,35 +51,36 @@ public extension Address {
     
     var formattedAddress: String? {
         [streetWithSubPremise, cityStateZip]
-            .compactMap{ $0 }
-            .filter { !$0.isEmpty }
+            .compactMap{ $0?.trimmedNullIfEmpty }
             .joined(separator: "\n")
             .trimmedNullIfEmpty
     }
     
     var mappableAddress: String? {
-        let fullAddress = [thoroughfare, cityStateZip]
-            .compactMap{ $0 }
+        [thoroughfare, cityStateZip]
+            .compactMap{ $0?.trimmedNullIfEmpty }
             .joined(separator: ", ")
-        return fullAddress.trimmedNullIfEmpty
+            .trimmedNullIfEmpty
     }
     
     var streetWithSubPremise: String? {
-        let street = [thoroughfare, subPremise]
-            .compactMap { $0 }
+        [thoroughfare, subPremise]
+            .compactMap { $0?.trimmedNullIfEmpty }
             .joined(separator: " ")
-        return street.trimmedNullIfEmpty
+            .trimmedNullIfEmpty
     }
     
     var cityState: String? {
         [locality, administrativeArea]
             .compactMap { $0?.trimmedNullIfEmpty }
             .joined(separator: ", ")
+            .trimmedNullIfEmpty
     }
     
     var cityStateZip: String? {
         [cityState, postalCode]
             .compactMap { $0?.trimmedNullIfEmpty }
             .joined(separator: " ")
+            .trimmedNullIfEmpty
     }
 }
