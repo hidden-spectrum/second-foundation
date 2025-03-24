@@ -39,11 +39,15 @@ public final class StoreReviewPromptManager {
     // MARK: Public
     
     public typealias KarmaClosure = (Int) -> Void
-    public typealias LastPromptVersionClosure = (String?) -> Void
+    public typealias LastPromptVersionClosure = (String?, Int) -> Void
     
     // MARK: Public private(set)
     
-    @AppStorage(.reviewPromptKarma) public private(set) var karma = 0
+    @AppStorage(.reviewPromptKarma) public private(set) var karma = 0 {
+        didSet {
+            karmaChangeAction?(karma)
+        }
+    }
     
     // MARK: Internal
     
@@ -83,7 +87,6 @@ public final class StoreReviewPromptManager {
     
     public func logPoints(for event: StoreReviewPromptManagerEvent) {
         karma += event.points
-        karmaChangeAction?(karma)
         
         guard karma >= promptThreshold else {
             return
@@ -92,6 +95,9 @@ public final class StoreReviewPromptManager {
         if let appVersion = appInfo?.version {
             if lastPromptVersion != appVersion {
                 promptForStoreReview(delay: event.promptDelayInSeconds)
+            } else {
+                logger.info("User has already been prompted to review this version, resetting karma")
+                karma = 0
             }
         } else {
             logger.warning("Could not determine app version, user may be prompted to review again for this version")
@@ -102,11 +108,10 @@ public final class StoreReviewPromptManager {
     // MARK: Prompt
     
     private func promptForStoreReview(delay: UInt64) {
-        karma = 0
-        
         let appVersion = appInfo?.version
         lastPromptVersion = appVersion
-        willPromptForReviewAction?(appVersion)
+        willPromptForReviewAction?(appVersion, karma)
+        karma = 0
         
         Task { @MainActor in
             try? await Task.sleep(nanoseconds: delay * 1_000_000_000)
