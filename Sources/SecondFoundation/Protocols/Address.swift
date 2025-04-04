@@ -8,10 +8,13 @@ import Foundation
 
 public protocol Address {
     
-    /// Street
+    /// Address street number
+    var subThoroughfare: String? { get }
+    
+    /// Street or street with number
     var thoroughfare: String? { get }
     
-    /// Unit
+    /// Unit / second line of address
     var subPremise: String? { get }
     
     /// Neighborhood
@@ -26,8 +29,10 @@ public protocol Address {
     /// City
     var administrativeArea: String? { get }
     
+    /// Postal code of the address
     var postalCode: String? { get }
     
+    /// Full country name of the address
     var country: String? { get }
 }
 
@@ -35,6 +40,13 @@ public extension Address {
     
     // MARK: Defaults
     
+    var fullThoroughfare: String? {
+        [subThoroughfare?.trimmedNullIfEmpty, thoroughfare?.trimmedNullIfEmpty]
+            .compactMap { $0 }
+            .joined(separator: " ")
+            .trimmedNullIfEmpty
+    }
+    var subThoroughfare: String? { nil }
     var thoroughfare: String? { nil }
     var subPremise: String? { nil }
     var subLocality: String? { nil }
@@ -50,21 +62,21 @@ public extension Address {
     // MARK: Utility
     
     var formattedAddress: String? {
-        [streetWithSubPremise, cityStateZip]
+        [fullThoroughfareWithSubPremise, cityStateZip]
             .compactMap{ $0?.trimmedNullIfEmpty }
             .joined(separator: "\n")
             .trimmedNullIfEmpty
     }
     
     var mappableAddress: String? {
-        [thoroughfare, cityStateZip]
+        [fullThoroughfare, cityStateZip]
             .compactMap{ $0?.trimmedNullIfEmpty }
             .joined(separator: ", ")
             .trimmedNullIfEmpty
     }
     
-    var streetWithSubPremise: String? {
-        [thoroughfare, subPremise]
+    var fullThoroughfareWithSubPremise: String? {
+        [fullThoroughfare, subPremise]
             .compactMap { $0?.trimmedNullIfEmpty }
             .joined(separator: " ")
             .trimmedNullIfEmpty
@@ -84,3 +96,5 @@ public extension Address {
             .trimmedNullIfEmpty
     }
 }
+
+extension CLPlacemark: Address {}
