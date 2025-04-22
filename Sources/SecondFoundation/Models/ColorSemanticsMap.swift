@@ -5,19 +5,15 @@
 import SwiftUI
 
 
-@MainActor
-public struct ColorSemanticsMap<CR: ColorRoleProvider, ACC: AssetCatalogColorProvider> {
+public struct ColorSemanticsMap<CR: ColorRoleProvider, ACC: AssetCatalogColorProvider>: Sendable {
     
     // MARK: Internal
     
-    var map = [ColorSet<ACC>: [CR]]()
+    let map: [ColorSet<ACC>: [CR]]
     
     // MARK: Lifecycle
     
-    public init() {
-    }
-    
-    init(_ map: [ColorSet<ACC>: [CR]]) {
+    public init(_ map: [ColorSet<ACC>: [CR]] = [:]) {
         self.map = map
     }
     

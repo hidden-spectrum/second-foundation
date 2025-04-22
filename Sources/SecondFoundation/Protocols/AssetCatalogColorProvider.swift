@@ -5,7 +5,7 @@
 import SwiftUI
 
 
-public protocol AssetCatalogColorProvider: Hashable {
+public protocol AssetCatalogColorProvider: Hashable, Sendable {
     var name: String { get }
     var bundle: Bundle { get }
 }

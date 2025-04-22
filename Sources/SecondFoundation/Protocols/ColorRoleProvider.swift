@@ -5,5 +5,5 @@
 import Foundation
 
 
-public protocol ColorRoleProvider: Equatable {
+public protocol ColorRoleProvider: Equatable, Sendable {
 }

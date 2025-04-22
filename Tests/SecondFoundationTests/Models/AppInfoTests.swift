@@ -48,7 +48,7 @@ final class AppInfoTests: XCTestCase {
 }
 
 
-private final class MockBundle: Bundle {
+private final class MockBundle: Bundle, @unchecked Sendable {
     var mockInfoDictionary: [String: Any] = [:]
     
     override var infoDictionary: [String : Any]? {

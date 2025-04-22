@@ -5,7 +5,7 @@
 import SwiftUI
 
 
-public struct ColorSet<ACC: AssetCatalogColorProvider>: Hashable {
+public struct ColorSet<ACC: AssetCatalogColorProvider>: Hashable, Sendable {
     
     // MARK: Internal
     
