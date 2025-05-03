@@ -15,7 +15,7 @@ public extension EnvironmentValues {
 }
 
 
-public struct StoreReviewPromptManagerEvent: Sendable {
+public struct StoreReviewPromptEvent: Sendable {
     
     // MARK: Public
     
@@ -85,8 +85,9 @@ public final class StoreReviewPromptManager {
     
     // MARK: Event logging
     
-    public func logPoints(for event: StoreReviewPromptManagerEvent) {
+    public func logPoints(for event: StoreReviewPromptEvent) {
         karma += event.points
+        logger.debug("Store review prompt karma: \(self.karma)")
         
         guard karma >= promptThreshold else {
             return
