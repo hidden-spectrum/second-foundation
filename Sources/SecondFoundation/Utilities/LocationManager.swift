@@ -19,6 +19,8 @@ public actor LocationManager {
     public typealias LocationStream = AsyncStream<CLLocation?>
     public typealias PlacemarkStream = AsyncStream<CLPlacemark?>
     
+    public let authorizationUpdates: AsyncStream<CLAuthorizationStatus>
+    
     // MARK: Public private(set)
     
     public private(set) var currentPlacemark: CLPlacemark? {
@@ -34,6 +36,7 @@ public actor LocationManager {
     
     // MARK: Private
     
+    private let authContinuation: AsyncStream<CLAuthorizationStatus>.Continuation
     private let desiredAccuracy: CLLocationAccuracy
     private let fetchPlacemark: Bool
     private let locationManager = CLLocationManager()
@@ -53,6 +56,7 @@ public actor LocationManager {
         self.desiredAccuracy = desiredAccuracy
         self.fetchPlacemark = fetchPlacemark
         locationManager.desiredAccuracy = desiredAccuracy
+        (authorizationUpdates, authContinuation) = AsyncStream<CLAuthorizationStatus>.makeStream(bufferingPolicy: .bufferingNewest(1))
     }
     
     // MARK: Authorization
@@ -64,6 +68,7 @@ public actor LocationManager {
         locationManager.requestWhenInUseAuthorization()
         log.info("Requested location authorization")
         await waitForAuthorization()
+        authContinuation.yield(locationManager.authorizationStatus)
     }
     
     func waitForAuthorization(timeout: TimeInterval = 10) async {
@@ -113,6 +118,8 @@ public actor LocationManager {
     // MARK: Location
     
     public func startUpdatingLocation() {
+        authContinuation.yield(locationManager.authorizationStatus)
+        
         guard hasAuthorization else {
             log.warning("Not authorized to access location")
             return
