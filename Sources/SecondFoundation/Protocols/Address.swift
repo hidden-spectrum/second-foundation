@@ -116,4 +116,23 @@ public extension Address {
     }
 }
 
+public extension Address {
+    
+    // MARK: Localized / Formatted Info
+    
+    var localizedCityStateZip: String? {
+        let address = CNMutablePostalAddress()
+        address.city = locality ?? ""
+        address.state = administrativeArea ?? ""
+        address.postalCode = postalCode ?? ""
+        address.isoCountryCode = isoCountryCode ?? ""
+        return CNPostalAddressFormatter().string(from: address).trimmedNullIfEmpty
+    }
+    
+    var localizedFormattedAddress: String? {
+        let formatter = CNPostalAddressFormatter()
+        return formatter.string(from: cnPostalAddress).trimmedNullIfEmpty
+    }
+}
+
 extension CLPlacemark: Address {}
