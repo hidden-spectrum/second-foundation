@@ -129,6 +129,16 @@ public extension Address {
         return CNPostalAddressFormatter().string(from: address).trimmedNullIfEmpty
     }
     
+    var localizedCityStateZipCountry: String? {
+        let address = CNMutablePostalAddress()
+        address.city = locality ?? ""
+        address.state = administrativeArea ?? ""
+        address.postalCode = postalCode ?? ""
+        address.country = country ?? ""
+        address.isoCountryCode = isoCountryCode ?? ""
+        return CNPostalAddressFormatter().string(from: address).trimmedNullIfEmpty
+    }
+    
     var localizedFormattedAddress: String? {
         let formatter = CNPostalAddressFormatter()
         return formatter.string(from: cnPostalAddress).trimmedNullIfEmpty
