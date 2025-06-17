@@ -2,6 +2,7 @@
 //  Copyright © 2025 Hidden Spectrum, LLC.
 //
 
+import Contacts
 import CoreLocation
 import Foundation
 
@@ -34,11 +35,25 @@ public protocol Address {
     
     /// Full country name of the address
     var country: String? { get }
+    
+    /// ISO country code of the address
+    var isoCountryCode: String? { get }
 }
 
 public extension Address {
     
-    // MARK: Defaults
+    var cnPostalAddress: CNPostalAddress {
+        let address = CNMutablePostalAddress()
+        address.street = fullThoroughfareWithSubPremise ?? ""
+        address.subLocality = subLocality ?? ""
+        address.city = locality ?? ""
+        address.subAdministrativeArea = subAdministrativeArea ?? ""
+        address.state = administrativeArea ?? ""
+        address.postalCode = postalCode ?? ""
+        address.country = country ?? ""
+        address.isoCountryCode = isoCountryCode ?? ""
+        return address
+    }
     
     var fullThoroughfare: String? {
         [subThoroughfare?.trimmedNullIfEmpty, thoroughfare?.trimmedNullIfEmpty]
@@ -46,6 +61,9 @@ public extension Address {
             .joined(separator: " ")
             .trimmedNullIfEmpty
     }
+    
+    // MARK: Defaults
+    
     var subThoroughfare: String? { nil }
     var thoroughfare: String? { nil }
     var subPremise: String? { nil }
@@ -55,6 +73,7 @@ public extension Address {
     var administrativeArea: String? { nil }
     var postalCode: String? { nil }
     var country: String? { nil }
+    var isoCountryCode: String? { nil }
 }
 
 public extension Address {
