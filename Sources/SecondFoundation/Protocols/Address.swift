@@ -42,26 +42,6 @@ public protocol Address {
 
 public extension Address {
     
-    var cnPostalAddress: CNPostalAddress {
-        let address = CNMutablePostalAddress()
-        address.street = fullThoroughfareWithSubPremise ?? ""
-        address.subLocality = subLocality ?? ""
-        address.city = locality ?? ""
-        address.subAdministrativeArea = subAdministrativeArea ?? ""
-        address.state = administrativeArea ?? ""
-        address.postalCode = postalCode ?? ""
-        address.country = country ?? ""
-        address.isoCountryCode = isoCountryCode ?? ""
-        return address
-    }
-    
-    var fullThoroughfare: String? {
-        [subThoroughfare?.trimmedNullIfEmpty, thoroughfare?.trimmedNullIfEmpty]
-            .compactMap { $0 }
-            .joined(separator: " ")
-            .trimmedNullIfEmpty
-    }
-    
     // MARK: Defaults
     
     var subThoroughfare: String? { nil }
@@ -80,6 +60,19 @@ public extension Address {
     
     // MARK: Utility
     
+    var cnPostalAddress: CNPostalAddress {
+        let address = CNMutablePostalAddress()
+        address.street = fullThoroughfareWithSubPremise ?? ""
+        address.subLocality = subLocality ?? ""
+        address.city = locality ?? ""
+        address.subAdministrativeArea = subAdministrativeArea ?? ""
+        address.state = administrativeArea ?? ""
+        address.postalCode = postalCode ?? ""
+        address.country = country ?? ""
+        address.isoCountryCode = isoCountryCode ?? ""
+        return address
+    }
+    
     var formattedAddress: String? {
         [fullThoroughfareWithSubPremise, cityStateZip]
             .compactMap{ $0?.trimmedNullIfEmpty }
@@ -91,6 +84,13 @@ public extension Address {
         [fullThoroughfare, cityStateZip]
             .compactMap{ $0?.trimmedNullIfEmpty }
             .joined(separator: ", ")
+            .trimmedNullIfEmpty
+    }
+    
+    var fullThoroughfare: String? {
+        [subThoroughfare?.trimmedNullIfEmpty, thoroughfare?.trimmedNullIfEmpty]
+            .compactMap { $0 }
+            .joined(separator: " ")
             .trimmedNullIfEmpty
     }
     
