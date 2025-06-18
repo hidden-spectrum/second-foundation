@@ -38,6 +38,9 @@ public protocol Address {
     
     /// ISO country code of the address
     var isoCountryCode: String? { get }
+    
+    /// CNPostalAddress representation of the address
+    var postalAddress: CNPostalAddress? { get }
 }
 
 public extension Address {
@@ -60,7 +63,7 @@ public extension Address {
     
     // MARK: Utility
     
-    var cnPostalAddress: CNPostalAddress {
+    var postalAddress: CNPostalAddress? {
         let address = CNMutablePostalAddress()
         address.street = fullThoroughfareWithSubPremise ?? ""
         address.subLocality = subLocality ?? ""
@@ -74,10 +77,11 @@ public extension Address {
     }
     
     var formattedAddress: String? {
-        [fullThoroughfareWithSubPremise, cityStateZip]
-            .compactMap{ $0?.trimmedNullIfEmpty }
-            .joined(separator: "\n")
-            .trimmedNullIfEmpty
+        guard let postalAddress else {
+            return nil
+        }
+        let formatter = CNPostalAddressFormatter()
+        return formatter.string(from: postalAddress).trimmedNullIfEmpty
     }
     
     var mappableAddress: String? {
@@ -97,7 +101,7 @@ public extension Address {
     var fullThoroughfareWithSubPremise: String? {
         [fullThoroughfare, subPremise]
             .compactMap { $0?.trimmedNullIfEmpty }
-            .joined(separator: " ")
+            .joined(separator: "\n")
             .trimmedNullIfEmpty
     }
     
@@ -120,7 +124,7 @@ public extension Address {
     
     // MARK: Localized / Formatted Info
     
-    var localizedCityStateZip: String? {
+    var formattedCityStateZip: String? {
         let address = CNMutablePostalAddress()
         address.city = locality ?? ""
         address.state = administrativeArea ?? ""
@@ -129,7 +133,7 @@ public extension Address {
         return CNPostalAddressFormatter().string(from: address).trimmedNullIfEmpty
     }
     
-    var localizedCityStateZipCountry: String? {
+    var formattedCityStateZipCountry: String? {
         let address = CNMutablePostalAddress()
         address.city = locality ?? ""
         address.state = administrativeArea ?? ""
@@ -137,11 +141,6 @@ public extension Address {
         address.country = country ?? ""
         address.isoCountryCode = isoCountryCode ?? ""
         return CNPostalAddressFormatter().string(from: address).trimmedNullIfEmpty
-    }
-    
-    var localizedFormattedAddress: String? {
-        let formatter = CNPostalAddressFormatter()
-        return formatter.string(from: cnPostalAddress).trimmedNullIfEmpty
     }
 }
 
