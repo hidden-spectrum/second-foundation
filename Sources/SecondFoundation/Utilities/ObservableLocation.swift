@@ -22,8 +22,7 @@ public final class ObservableLocation: ObservableObject {
     @Published public private(set) var current: CLLocation?
     
     public var hasAuthorization: Bool {
-        let authStatus = CLLocationManager().authorizationStatus
-        return authStatus == .authorizedWhenInUse || authStatus == .authorizedAlways
+        locationManager.hasAuthorization
     }
     
     // MARK: Private

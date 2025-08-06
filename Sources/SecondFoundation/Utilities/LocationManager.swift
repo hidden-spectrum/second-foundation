@@ -34,6 +34,17 @@ public actor LocationManager {
         }
     }
     
+    // MARK: Internal
+    
+    nonisolated var hasAuthorization: Bool {
+        let authStatus = CLLocationManager().authorizationStatus
+        #if os(macOS)
+        return authStatus == .authorizedAlways
+        #else
+        return authStatus == .authorizedWhenInUse || authStatus == .authorizedAlways
+        #endif
+    }
+    
     // MARK: Private
     
     private let authContinuation: AsyncStream<CLAuthorizationStatus>.Continuation
@@ -42,10 +53,7 @@ public actor LocationManager {
     private let locationManager = CLLocationManager()
     private let log = Logger(subsystem: "io.hspec.SecondFoundation", category: "LocationManager")
     
-    private var hasAuthorization: Bool {
-        let authStatus = locationManager.authorizationStatus
-        return authStatus == .authorizedWhenInUse || authStatus == .authorizedAlways
-    }
+    
     private var isUpdating = false
     private var locationContinuations: [UUID: LocationStream.Continuation] = [:]
     private var placemarkContinuations: [UUID: PlacemarkStream.Continuation] = [:]

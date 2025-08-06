@@ -85,7 +85,7 @@ public extension Address {
     }
     
     var mappableAddress: String? {
-        [fullThoroughfare, cityStateZip]
+        [fullThoroughfare, cityStateZip, country]
             .compactMap{ $0?.trimmedNullIfEmpty }
             .joined(separator: ", ")
             .trimmedNullIfEmpty
