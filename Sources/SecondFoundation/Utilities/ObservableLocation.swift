@@ -46,6 +46,8 @@ public final class ObservableLocation: ObservableObject {
         let placemarkTask = Task { [weak self] in
             guard let self else { return }
             
+            self.current = await locationManager.currentLocation
+            
             let stream = await self.locationManager.createLocationStream()
             for await newLocation in stream {
                 guard let newLocation else {
@@ -62,6 +64,8 @@ public final class ObservableLocation: ObservableObject {
         
         let locationTask = Task { [weak self] in
             guard let self else { return }
+            
+            self.placemark = await locationManager.currentPlacemark
             
             let placemarkStream = await self.locationManager.createPlacemarkStream()
             for await placemark in placemarkStream {
