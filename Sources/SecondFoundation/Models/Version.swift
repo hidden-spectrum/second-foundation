@@ -21,18 +21,21 @@ public struct Version: Sendable {
     
     public init?(string versionString: String) {
         let versionComponents = versionString.components(separatedBy: ".")
-        guard versionComponents.count == 3 else {
+        guard versionComponents.count >= 2 else {
             return nil
         }
         guard let major = Int(versionComponents[0]),
-              let minor = Int(versionComponents[1]),
-              let patch = Int(versionComponents[2])
+              let minor = Int(versionComponents[1])
         else {
             return nil
         }
         self.major = major
         self.minor = minor
-        self.patch = patch
+        if versionComponents.count >= 3 {
+            self.patch = Int(versionComponents[2]) ?? 0
+        } else {
+            self.patch = 0
+        }
     }
     
     public init(major: Int, minor: Int, patch: Int) {
@@ -44,19 +47,13 @@ public struct Version: Sendable {
 
 extension Version: Comparable {
     public static func < (lhs: Self, rhs: Self) -> Bool {
-        if lhs.major < rhs.major {
-            return true
-        } else if lhs.major > rhs.major {
-            return false
+        if lhs.major != rhs.major {
+            return lhs.major < rhs.major
+        } else if lhs.minor != rhs.minor {
+            return lhs.minor < rhs.minor
+        } else  {
+            return lhs.patch < rhs.patch
         }
-        
-        if lhs.minor < rhs.minor {
-            return true
-        } else if lhs.minor > rhs.minor {
-            return false
-        }
-        
-        return lhs.patch < rhs.patch
     }
 }
 
