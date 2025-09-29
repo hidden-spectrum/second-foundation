@@ -5,7 +5,7 @@
 import Foundation
 
 
-public struct Version {
+public struct Version: Sendable {
     
     // MARK: Public
     
