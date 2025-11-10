@@ -51,7 +51,7 @@ extension Version: Comparable {
             return lhs.major < rhs.major
         } else if lhs.minor != rhs.minor {
             return lhs.minor < rhs.minor
-        } else  {
+        } else {
             return lhs.patch < rhs.patch
         }
     }

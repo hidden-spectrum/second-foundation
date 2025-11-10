@@ -41,6 +41,14 @@ public final class StoreReviewPromptManager {
     public typealias KarmaClosure = (Int) -> Void
     public typealias LastPromptVersionClosure = (String?, Int) -> Void
     
+    public var promptPending: Bool {
+        if let appVersion = appInfo?.version {
+            return karma >= promptThreshold && lastPromptVersion != appVersion
+        } else {
+            return karma >= promptThreshold
+        }
+    }
+    
     // MARK: Public private(set)
     
     @AppStorage(.reviewPromptKarma) public private(set) var karma = 0 {
@@ -58,14 +66,16 @@ public final class StoreReviewPromptManager {
     // MARK: Private
     
     private let appInfo = AppInfo()
-    private let logger = Logger(subsystem: "io.hiddenspectrum.secondfoundation", category: "StoreReviewPromptManager")
+    private let autoPrompt: Bool
+    private let log = Logger(subsystem: "io.hiddenspectrum.secondfoundation", category: "StoreReviewPromptManager")
     
     private var karmaChangeAction: KarmaClosure?
     private var willPromptForReviewAction: LastPromptVersionClosure?
     
     // MARK: Lifecycle
     
-    public init(promptThreshold: UInt) {
+    public init(promptThreshold: UInt, autoPrompt: Bool = true) {
+        self.autoPrompt = autoPrompt
         self.promptThreshold = promptThreshold
     }
     
@@ -87,9 +97,9 @@ public final class StoreReviewPromptManager {
     
     public func logPoints(for event: StoreReviewPromptEvent) {
         karma += event.points
-        logger.debug("Store review prompt karma: \(self.karma)")
+        log.debug("Store review prompt karma: \(self.karma)")
         
-        guard karma >= promptThreshold else {
+        guard karma >= promptThreshold && autoPrompt else {
             return
         }
         
@@ -97,18 +107,18 @@ public final class StoreReviewPromptManager {
             if lastPromptVersion != appVersion {
                 promptForStoreReview(delay: event.promptDelayInSeconds)
             } else {
-                logger.info("User has already been prompted to review this version, resetting karma")
+                log.info("User has already been prompted to review this version, resetting karma")
                 karma = 0
             }
         } else {
-            logger.warning("Could not determine app version, user may be prompted to review again for this version")
+            log.warning("Could not determine app version, user may be prompted to review again for this version")
             promptForStoreReview(delay: event.promptDelayInSeconds)
         }
     }
     
     // MARK: Prompt
     
-    private func promptForStoreReview(delay: UInt64) {
+    public func promptForStoreReview(delay: UInt64 = 0) {
         let appVersion = appInfo?.version
         lastPromptVersion = appVersion
         willPromptForReviewAction?(appVersion, karma)
@@ -118,6 +128,13 @@ public final class StoreReviewPromptManager {
             try? await Task.sleep(nanoseconds: delay * 1_000_000_000)
             SKStoreReviewController.requestReview()
         }
+    }
+    
+    public func deferToNextVersion() {
+        let appVersion = appInfo?.version
+        lastPromptVersion = appVersion
+        karma = 0
+        log.info("Deferred store review prompt to next version")
     }
 }
 

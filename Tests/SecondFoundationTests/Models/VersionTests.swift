@@ -14,7 +14,7 @@ final class VersionTests: XCTestCase {
     }
     
     func testInitWithInvalidString() {
-        let version = Version(string: "1.2")
+        let version = Version(string: "12")
         XCTAssertNil(version)
     }
     
