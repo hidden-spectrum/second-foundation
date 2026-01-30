@@ -139,3 +139,5 @@ public extension Address {
         return CNPostalAddressFormatter().string(from: address).trimmedNullIfEmpty
     }
 }
+
+extension CLPlacemark: Address {}
