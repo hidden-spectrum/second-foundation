@@ -9,6 +9,9 @@ import Foundation
 
 public protocol Address {
     
+    /// Street number + name
+    var fullThoroughfare: String? { get }
+    
     /// Address street number
     var subThoroughfare: String? { get }
     
@@ -47,16 +50,16 @@ public extension Address {
     
     // MARK: Defaults
     
+    var fullThoroughfare: String? {
+        [subThoroughfare?.trimmedNullIfEmpty, thoroughfare?.trimmedNullIfEmpty]
+            .compactMap { $0 }
+            .joined(separator: " ")
+            .trimmedNullIfEmpty
+    }
+    
     var subThoroughfare: String? { nil }
     var thoroughfare: String? { nil }
     var subPremise: String? { nil }
-    var subLocality: String? { nil }
-    var locality: String? { nil }
-    var subAdministrativeArea: String? { nil }
-    var administrativeArea: String? { nil }
-    var postalCode: String? { nil }
-    var country: String? { nil }
-    var isoCountryCode: String? { nil }
 }
 
 public extension Address {
@@ -88,13 +91,6 @@ public extension Address {
         [fullThoroughfare, cityStateZip, country]
             .compactMap{ $0?.trimmedNullIfEmpty }
             .joined(separator: ", ")
-            .trimmedNullIfEmpty
-    }
-    
-    var fullThoroughfare: String? {
-        [subThoroughfare?.trimmedNullIfEmpty, thoroughfare?.trimmedNullIfEmpty]
-            .compactMap { $0 }
-            .joined(separator: " ")
             .trimmedNullIfEmpty
     }
     
@@ -143,5 +139,3 @@ public extension Address {
         return CNPostalAddressFormatter().string(from: address).trimmedNullIfEmpty
     }
 }
-
-extension CLPlacemark: Address {}
