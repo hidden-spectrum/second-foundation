@@ -113,7 +113,7 @@ public actor LocationManager {
             self.placemarkContinuations[id] = continuation
             continuation.onTermination = { [weak self] _ in
                 Task {
-                    await self?.removeLocationContinuation(withId: id)
+                    await self?.removePlacemarkContinuation(withId: id)
                 }
             }
         }
