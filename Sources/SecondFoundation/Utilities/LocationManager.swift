@@ -16,10 +16,9 @@ public actor LocationManager {
     @MainActor
     public static let shared = LocationManager()
     
+    public typealias AuthorizationStream = AsyncStream<CLAuthorizationStatus>
     public typealias LocationStream = AsyncStream<CLLocation?>
     public typealias PlacemarkStream = AsyncStream<CLPlacemark?>
-    
-    public let authorizationUpdates: AsyncStream<CLAuthorizationStatus>
     
     // MARK: Public private(set)
     
@@ -47,13 +46,12 @@ public actor LocationManager {
     
     // MARK: Private
     
-    private let authContinuation: AsyncStream<CLAuthorizationStatus>.Continuation
     private let desiredAccuracy: CLLocationAccuracy
     private let fetchPlacemark: Bool
     private let locationManager = CLLocationManager()
     private let log = Logger(subsystem: "io.hspec.SecondFoundation", category: "LocationManager")
     
-    
+    private var authorizationContinuations: [UUID: AuthorizationStream.Continuation] = [:]
     private var isUpdating = false
     private var locationContinuations: [UUID: LocationStream.Continuation] = [:]
     private var placemarkContinuations: [UUID: PlacemarkStream.Continuation] = [:]
@@ -64,7 +62,6 @@ public actor LocationManager {
         self.desiredAccuracy = desiredAccuracy
         self.fetchPlacemark = fetchPlacemark
         locationManager.desiredAccuracy = desiredAccuracy
-        (authorizationUpdates, authContinuation) = AsyncStream<CLAuthorizationStatus>.makeStream(bufferingPolicy: .bufferingNewest(1))
     }
     
     // MARK: Authorization
@@ -76,7 +73,7 @@ public actor LocationManager {
         locationManager.requestWhenInUseAuthorization()
         log.info("Requested location authorization")
         await waitForAuthorization()
-        authContinuation.yield(locationManager.authorizationStatus)
+        yieldAuthorizationStatus()
     }
     
     func waitForAuthorization(timeout: TimeInterval = 10) async {
@@ -89,12 +86,36 @@ public actor LocationManager {
         }
     }
     
+    private func yieldAuthorizationStatus() {
+        authorizationContinuations.values.forEach { continuation in
+            continuation.yield(locationManager.authorizationStatus)
+        }
+    }
+    
     // MARK: Streams
     
+    public func createAuthorizationStream() -> AuthorizationStream {
+        AuthorizationStream(bufferingPolicy: .bufferingNewest(1)) { continuation in
+            let id = UUID()
+            authorizationContinuations[id] = continuation
+            continuation.yield(locationManager.authorizationStatus)
+            continuation.onTermination = { [weak self] _ in
+                Task {
+                    await self?.removeAuthorizationContinuation(withId: id)
+                }
+            }
+        }
+    }
+    
+    private func removeAuthorizationContinuation(withId id: UUID) {
+        authorizationContinuations.removeValue(forKey: id)
+    }
+    
     public func createLocationStream() -> LocationStream {
-        LocationStream { continuation in
+        LocationStream(bufferingPolicy: .bufferingNewest(1)) { continuation in
             let id = UUID()
             self.locationContinuations[id] = continuation
+            continuation.yield(currentLocation)
             continuation.onTermination = { [weak self] _ in
                 Task {
                     await self?.removeLocationContinuation(withId: id)
@@ -108,9 +129,10 @@ public actor LocationManager {
     }
     
     public func createPlacemarkStream() -> PlacemarkStream {
-        PlacemarkStream { continuation in
+        PlacemarkStream(bufferingPolicy: .bufferingNewest(1)) { continuation in
             let id = UUID()
             self.placemarkContinuations[id] = continuation
+            continuation.yield(currentPlacemark)
             continuation.onTermination = { [weak self] _ in
                 Task {
                     await self?.removePlacemarkContinuation(withId: id)
@@ -126,7 +148,7 @@ public actor LocationManager {
     // MARK: Location
     
     public func startUpdatingLocation() {
-        authContinuation.yield(locationManager.authorizationStatus)
+        yieldAuthorizationStatus()
         
         guard hasAuthorization else {
             log.warning("Not authorized to access location")
