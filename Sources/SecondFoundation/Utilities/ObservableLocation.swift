@@ -43,32 +43,35 @@ public final class ObservableLocation: ObservableObject {
     }
     
     private func subscribeToUpdates() {
-        let placemarkTask = Task { [weak self] in
-            guard let self else { return }
-
+        let locationTask = Task { [weak self] in
+            guard let self else {
+                return
+            }
+            
             let stream = await self.locationManager.createLocationStream()
             for await newLocation in stream {
                 guard let newLocation else {
                     continue
                 }
-                if let currentLocation = current, newLocation.distance(from: currentLocation) >= distanceChangeRequirement {
-                    self.current = newLocation
-                } else {
-                    self.current = newLocation
+                if let current, newLocation.distance(from: current) < distanceChangeRequirement {
+                    continue
                 }
+                self.current = newLocation
             }
         }
-        tasks.append(placemarkTask)
+        tasks.append(locationTask)
         
-        let locationTask = Task { [weak self] in
-            guard let self else { return }
-
+        let placemarkTask = Task { [weak self] in
+            guard let self else {
+                return
+            }
+            
             let placemarkStream = await self.locationManager.createPlacemarkStream()
             for await placemark in placemarkStream {
                 self.placemark = placemark
             }
         }
-        tasks.append(locationTask)
+        tasks.append(placemarkTask)
     }
     
     // MARK: Location Manager
