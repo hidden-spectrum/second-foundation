@@ -5,48 +5,64 @@
 #if os(iOS) || os(macOS)
 
 @testable import SecondFoundation
-import XCTest
+
+import Foundation
+import Testing
 
 
-final class StoreReviewPromptManagerTests: XCTestCase {
-    var reviewPromptManager: StoreReviewPromptManager!
-
-    override func setUp() {
-        super.setUp()
+@Suite("StoreReviewPromptManager Tests", .serialized)
+struct StoreReviewPromptManagerTests {
+    
+    // MARK: Private
+    
+    private let reviewPromptManager: StoreReviewPromptManager
+    
+    // MARK: Lifecycle
+    
+    init() {
         if let bundleID = Bundle.main.bundleIdentifier {
             UserDefaults.standard.removePersistentDomain(forName: bundleID)
         }
         reviewPromptManager = StoreReviewPromptManager(promptThreshold: 5)
     }
-
-    override func tearDown() {
-        reviewPromptManager = nil
-        super.tearDown()
+    
+    // MARK: Tests
+    
+    @Test("Karma starts at zero")
+    func karmaInitialization() {
+        #expect(reviewPromptManager.karma == 0)
     }
-
-    func testKarmaInitialization() {
-        XCTAssertEqual(reviewPromptManager.karma, 0)
-    }
-
-    func testKarmaChangeAction() {
+    
+    @Test("Logging points reports the new karma to the change action")
+    func karmaChangeAction() async {
+        var reportedKarma: Int?
         reviewPromptManager.onKarmaChange { karma in
-            XCTAssertEqual(karma, 2)
+            reportedKarma = karma
         }
+        
         reviewPromptManager.logPoints(for: .init(points: 2))
+        
+        #expect(reportedKarma == 2)
     }
-
-    func testPromptThresholdNotReached() {
+    
+    @Test("Karma accumulates while below the prompt threshold")
+    func promptThresholdNotReached() async {
         reviewPromptManager.logPoints(for: .init(points: 3))
-        XCTAssertEqual(reviewPromptManager.karma, 3)
+        
+        #expect(reviewPromptManager.karma == 3)
     }
-
-    func testPromptThresholdReached() {
-        reviewPromptManager.onWillPromptForReview { version, karma in
-//            XCTAssertNotNil(version)
-            XCTAssertEqual(karma, 5)
+    
+    @Test("Reaching the threshold reports karma to the prompt action, then resets karma")
+    func promptThresholdReached() async {
+        var promptedKarma: Int?
+        reviewPromptManager.onWillPromptForReview { _, karma in
+            promptedKarma = karma
         }
+        
         reviewPromptManager.logPoints(for: .init(points: 5))
-        XCTAssertEqual(reviewPromptManager.karma, 0)
+        
+        #expect(promptedKarma == 5)
+        #expect(reviewPromptManager.karma == 0)
     }
 }
 

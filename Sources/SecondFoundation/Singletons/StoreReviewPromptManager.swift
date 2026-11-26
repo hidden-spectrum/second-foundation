@@ -74,7 +74,7 @@ public final class StoreReviewPromptManager {
     
     // MARK: Lifecycle
     
-    public init(promptThreshold: UInt, autoPrompt: Bool = true) {
+    nonisolated public init(promptThreshold: UInt, autoPrompt: Bool = true) {
         self.autoPrompt = autoPrompt
         self.promptThreshold = promptThreshold
     }
