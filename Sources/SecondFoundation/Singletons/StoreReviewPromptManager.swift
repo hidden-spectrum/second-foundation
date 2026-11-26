@@ -34,6 +34,7 @@ public struct StoreReviewPromptEvent: Sendable {
 
 
 @available(macOS 12, iOS 15, *)
+@MainActor
 public final class StoreReviewPromptManager {
     
     // MARK: Public
